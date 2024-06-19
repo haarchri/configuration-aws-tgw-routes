@@ -1,0 +1,42 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xtgwroutes.aws.platform.upbound.io
+spec:
+  compositeTypeRef:
+    apiVersion: aws.platform.upbound.io/v1beta1
+    kind: XTGWRoute
+  mode: Pipeline
+  pipeline:
+    - step: go-templating
+      functionRef:
+        name: crossplane-contrib-function-go-templating
+      input:
+        apiVersion: gotemplating.fn.crossplane.io/v1beta1
+        kind: GoTemplate
+        source: Inline
+        inline:
+          template: |
+            {{ $metadata := .observed.composite.resource.metadata }}
+            {{ $spec := .observed.composite.resource.spec }}
+            ---
+            apiVersion: ec2.aws.upbound.io/v1beta1
+            kind: TransitGatewayRoute
+            metadata:
+              name: {{ $metadata.name }}
+              annotations:
+                gotemplating.fn.crossplane.io/composition-resource-name: {{ $spec.forProvider.transitGatewayRouteTableId }}-{{ $spec.forProvider.destinationCidrBlock | replace "." "-" | replace "/" "-" }}
+            spec:
+              deletionPolicy: {{ $spec.deletionPolicy | default "Delete" }}
+              forProvider:
+                region: {{ $spec.forProvider.region }}
+                blackhole: {{ $spec.forProvider.blackhole }}
+                destinationCidrBlock: {{ $spec.forProvider.destinationCidrBlock }}
+                transitGatewayAttachmentId: {{ $spec.forProvider.transitGatewayAttachmentId }}
+                transitGatewayRouteTableId: {{ $spec.forProvider.transitGatewayRouteTableId }}
+              providerConfigRef:
+                name: {{ $spec.providerConfigRef.name }}
+
+    - step: automatically-detect-ready-composed-resources
+      functionRef:
+        name: crossplane-contrib-function-auto-ready

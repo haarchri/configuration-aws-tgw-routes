@@ -1,0 +1,14 @@
+apiVersion: aws.platform.upbound.io/v1beta1
+kind: XTGWRoute
+metadata:
+  name: example
+spec:
+  deletionPolicy: Delete
+  forProvider:
+    region: eu-central-1
+    blackhole: false
+    destinationCidrBlock: 10.10.10.10/8
+    transitGatewayAttachmentId: tgw-attach-041d14dfb26a32373
+    transitGatewayRouteTableId: tgw-rtb-009c5447f84548faa
+  providerConfigRef:
+    name: default

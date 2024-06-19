@@ -1,0 +1,49 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xtgwroutes.aws.platform.upbound.io
+spec:
+  group: aws.platform.upbound.io
+  names:
+    kind: XTGWRoute
+    plural: xtgwroutes
+  versions:
+    - name: v1beta1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                deletionPolicy:
+                  description: Delete the external resources when the Claim/XR is deleted. Defaults to Delete
+                  enum:
+                    - Delete
+                    - Orphan
+                  type: string
+                  default: Delete
+                providerConfigRef:
+                  type: object
+                  description: providerConfigRef
+                  properties:
+                    name:
+                      type: string
+                forProvider:
+                  type: object
+                  description: Parameters used to configure TGW Route
+                  properties:
+                    region:
+                      type: string
+                    blackhole:
+                      type: boolean
+                    destinationCidrBlock:
+                      type: string
+                    transitGatewayAttachmentId:
+                      type: string
+                    transitGatewayRouteTableId:
+                      type: string
+              required:
+                - forProvider
